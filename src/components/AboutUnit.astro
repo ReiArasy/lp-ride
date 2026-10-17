@@ -1,0 +1,20 @@
+---
+import { site, isPublished } from "../data/site";
+---
+
+{isPublished(site.about) && (
+  <section class="section about" id="unit" aria-labelledby="about-title">
+    <div class="section__inner about__inner">
+      <h2 id="about-title">Tentang {site.name}</h2>
+      <p class="unit-chip">{site.unit.name} · {site.unit.year} · {site.unit.variant}</p>
+      <p class="about__text">{site.about}</p>
+    </div>
+  </section>
+)}
+
+<style>
+  .about { background: var(--paper-2); text-align: center; }
+  .about__inner { max-width: 44rem; }
+  .unit-chip { display: inline-block; margin: 1.25rem 0 0; padding: .7rem 1rem; border: 1px solid var(--line-strong); border-radius: 999px; font-size: .8rem; font-weight: 500; }
+  .about__text { margin: 1.25rem auto 0; color: var(--muted-dark); font-weight: 400; line-height: 1.7; }
+</style>

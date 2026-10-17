@@ -1,0 +1,52 @@
+---
+import { site } from "../data/site";
+
+const publicAddress = site.showFullAddress ? site.pickupAddress : site.publicPickupAddress;
+const waMessage = `Halo ${site.name}, saya ingin bertanya tentang sewa ${site.unit.name} ${site.unit.year} (${site.unit.variant}).`;
+const waHref = `https://wa.me/${site.waNumber}?text=${encodeURIComponent(waMessage)}`;
+---
+
+<section class="section contact" id="kontak" aria-labelledby="contact-title">
+  <div class="section__inner contact-grid">
+    <div>
+      <h2 id="contact-title">Mulai dari WhatsApp.</h2>
+    </div>
+    <dl>
+      <div><dt>Area layanan</dt><dd>{site.areaServed.join(" — ")}</dd></div>
+      <div><dt>Jam operasional</dt><dd>{site.hours}</dd></div>
+      <div><dt>Titik ambil</dt><dd>{publicAddress}</dd></div>
+      <div><dt>WhatsApp</dt><dd><a href={waHref} target="_blank" rel="noopener noreferrer">{site.waDisplay}</a></dd></div>
+    </dl>
+    <p>{site.pickupNote}</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div>
+    <img src="/images/logo-lifabs-rent-header.jpg" width="300" height="96" alt="Lifabs Rent" loading="lazy" />
+    <p>© {new Date().getFullYear()} {site.name}. Area {site.areaServed.join(" — ")}.</p>
+    <a href="#main-content">Kembali ke atas</a>
+  </div>
+</footer>
+
+<style>
+  .contact { color: var(--paper); background: var(--accent); }
+  .contact-grid { display: grid; grid-template-columns: .75fr 1.25fr; gap: clamp(2rem, 8vw, 7rem); }
+  .contact h2 { color: var(--paper); }
+  .contact dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin: 0; }
+  .contact dt { color: #fff; font-size: .72rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+  .contact dd { margin: .35rem 0 0; font-size: 1.05rem; font-weight: 500; line-height: 1.45; }
+  .contact dd a { min-height: 44px; display: inline-flex; align-items: center; color: var(--paper); text-underline-offset: .3em; }
+  .contact-grid > p { grid-column: 2; margin: 0; color: #d9eff7; font-size: .85rem; }
+  .footer { padding: 1.5rem 1rem 5.5rem; background: var(--paper); border-top: 1px solid var(--line); }
+  .footer > div { width: min(100%, var(--container)); min-height: 4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-inline: auto; }
+  .footer img { width: 120px; height: 38px; object-fit: contain; }
+  .footer p { margin: 0; color: var(--muted-dark); font-size: .78rem; }
+  .footer a { min-height: 44px; display: inline-flex; align-items: center; color: var(--ink); font-size: .8rem; font-weight: 500; }
+  @media (max-width: 700px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .contact dl { grid-template-columns: 1fr; }
+    .contact-grid > p { grid-column: 1; }
+    .footer > div { align-items: flex-start; flex-direction: column; }
+  }
+</style>

@@ -1,0 +1,116 @@
+---
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Pricing from "../components/Pricing.astro";
+import OrderForm from "../components/OrderForm.astro";
+import AboutUnit from "../components/AboutUnit.astro";
+import Terms from "../components/Terms.astro";
+import Faq from "../components/Faq.astro";
+import ContactFooter from "../components/ContactFooter.astro";
+import StickyWhatsApp from "../components/StickyWhatsApp.astro";
+import { site } from "../data/site";
+import { heroImage } from "../data/heroImage";
+import "../styles/global.css";
+
+const canonical = site.seo.siteUrl
+  ? new URL("/", site.seo.siteUrl).toString()
+  : new URL(Astro.url.pathname, Astro.url.origin).toString();
+const ogImage = site.seo.siteUrl
+  ? new URL(site.seo.ogImage, site.seo.siteUrl).toString()
+  : new URL(site.seo.ogImage, Astro.url.origin).toString();
+const publicAddress = site.showFullAddress ? site.pickupAddress : undefined;
+
+const localBusiness = {
+  "@type": "LocalBusiness",
+  name: site.name,
+  telephone: `+${site.waNumber}`,
+  areaServed: site.areaServed.map((name) => ({ "@type": "City", name })),
+  ...(publicAddress
+    ? {
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: publicAddress,
+          addressLocality: "Sidoarjo",
+          addressCountry: "ID",
+        },
+      }
+    : {}),
+};
+
+const product = {
+  "@type": "Product",
+  name: `${site.unit.name} ${site.unit.year} ${site.unit.variant}`,
+  description: `Sewa ${site.unit.name} tahun ${site.unit.year}, varian ${site.unit.variant}, untuk area ${site.areaServed.join(" dan ")}.`,
+  image: ogImage,
+  offers: site.prices.map((item) => ({
+    "@type": "Offer",
+    priceCurrency: "IDR",
+    price: item.price,
+    availability: site.available
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock",
+    description: `Sewa selama ${item.hours} jam untuk penggunaan area Sidoarjo.`,
+  })),
+};
+
+const faqPage = {
+  "@type": "FAQPage",
+  mainEntity: site.faqs.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [localBusiness, product, faqPage],
+};
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={site.seo.description} />
+    <meta name="keywords" content={site.seo.keywords.join(", ")} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={site.seo.title} />
+    <meta property="og:description" content={site.seo.description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.seo.title} />
+    <meta name="twitter:description" content={site.seo.description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {heroImage.mobileAvif && <link rel="preload" as="image" type="image/avif" imagesrcset={heroImage.mobileAvif} imagesizes="100vw" media="(max-width: 900px)" fetchpriority="high" />}
+    {heroImage.desktopAvif && <link rel="preload" as="image" type="image/avif" imagesrcset={heroImage.desktopAvif} imagesizes="100vw" media="(min-width: 901px)" fetchpriority="high" />}
+    {!heroImage.desktopAvif && <link rel="preload" as="image" href={heroImage.src} fetchpriority="high" />}
+    <title>{site.seo.title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
+    <Header />
+    <main id="main-content">
+      <Hero />
+      <Pricing />
+      <OrderForm />
+      <AboutUnit />
+      <Terms />
+      <Faq />
+      <ContactFooter />
+    </main>
+    <StickyWhatsApp />
+  </body>
+</html>

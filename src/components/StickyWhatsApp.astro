@@ -1,0 +1,29 @@
+---
+import { site } from "../data/site";
+const message = `Halo ${site.name}, saya tertarik menyewa ${site.unit.name} ${site.unit.year} (${site.unit.variant}). Mohon info ketersediaannya.`;
+const href = `https://wa.me/${site.waNumber}?text=${encodeURIComponent(message)}`;
+---
+
+<a class="sticky-wa" href={href} target="_blank" rel="noopener noreferrer" aria-label={`Hubungi ${site.name} melalui WhatsApp`}>
+  <span>WhatsApp</span>
+  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+</a>
+
+<script>
+  const sticky = document.querySelector<HTMLElement>(".sticky-wa");
+  const formSection = document.querySelector<HTMLElement>("#order");
+  if (sticky && formSection && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      ([entry]) => sticky.toggleAttribute("data-form-visible", entry.isIntersecting),
+      { threshold: 0.08 },
+    );
+    observer.observe(formSection);
+  }
+</script>
+
+<style>
+  .sticky-wa { position: fixed; right: 1rem; bottom: 1rem; z-index: 50; min-height: 52px; display: none; align-items: center; justify-content: space-between; gap: 1.5rem; padding: .85rem 1rem; color: #fff; background: var(--accent); border-radius: 12px; box-shadow: 0 14px 34px -16px rgb(0 50 70 / 72%); font-weight: 600; text-decoration: none; transition: opacity 180ms ease, transform 240ms var(--ease-out), visibility 180ms ease; }
+  .sticky-wa[data-form-visible] { opacity: 0; visibility: hidden; transform: translateY(1rem); pointer-events: none; }
+  .sticky-wa svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  @media (max-width: 700px) { .sticky-wa { display: flex; } }
+</style>

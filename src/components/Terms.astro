@@ -1,0 +1,56 @@
+---
+import { site } from "../data/site";
+---
+
+<section class="section terms" id="syarat" aria-labelledby="terms-title">
+  <div class="section__inner">
+    <header class="section-heading section-heading--wide">
+      <h2 id="terms-title">Syarat & ketentuan.</h2>
+      <p>Dokumen dikirim melalui WhatsApp setelah owner mengonfirmasi booking.</p>
+    </header>
+
+    <div class="term-highlights" aria-label="Ketentuan penting">
+      <div>
+        <strong>{site.terms.helmetHighlight}</strong>
+        <small>Bawa helm sendiri.</small>
+      </div>
+      <div class="term-highlight--danger">
+        <strong>{site.terms.penaltyHighlight}</strong>
+        <small>Untuk pelanggaran ketentuan.</small>
+      </div>
+    </div>
+
+    <div class="terms-grid">
+      <section aria-labelledby="requirements-title">
+        <h3 id="requirements-title">Syarat</h3>
+        <ul>
+          {site.terms.requirements.map((item) => <li>{item}</li>)}
+        </ul>
+      </section>
+      <section aria-labelledby="conditions-title">
+        <h3 id="conditions-title">Ketentuan</h3>
+        <ul>
+          {site.terms.conditions.map((item) => <li>{item}</li>)}
+        </ul>
+      </section>
+    </div>
+  </div>
+</section>
+
+<style>
+  .terms { background: var(--paper); }
+  .term-highlights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+  .term-highlights > div { min-height: 8rem; display: grid; align-content: center; gap: .15rem; padding: 1.25rem; color: var(--accent); background: #f3fafc; border: 1px solid #abd4e2; }
+  .term-highlights strong { font-family: var(--font-display); font-size: clamp(1.2rem, 3vw, 1.7rem); font-weight: 600; }
+  .term-highlights small { color: var(--muted-dark); font-size: .84rem; }
+  .term-highlights .term-highlight--danger { color: var(--signal-dark); background: #fff7f7; border-color: #e7b5b8; }
+  .terms-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1px; margin-top: 1px; background: var(--line-strong); border: 1px solid var(--line-strong); }
+  .terms-grid section { padding: clamp(1.5rem, 4vw, 2.5rem); background: var(--paper); }
+  .terms-grid h3 { margin: 0; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; }
+  .terms-grid ul { display: grid; gap: .9rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+  .terms-grid li { position: relative; padding-left: 1.25rem; color: #303840; font-weight: 400; line-height: 1.6; }
+  .terms-grid li::before { content: ""; position: absolute; top: .72em; left: 0; width: .38rem; height: .38rem; background: var(--accent); border-radius: 50%; }
+  @media (max-width: 700px) {
+    .term-highlights, .terms-grid { grid-template-columns: 1fr; }
+  }
+</style>

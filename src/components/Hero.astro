@@ -1,0 +1,66 @@
+---
+import { site } from "../data/site";
+import { heroImage } from "../data/heroImage";
+const startingPrice = site.prices[0];
+const money = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+const message = `Halo ${site.name}, saya tertarik menyewa ${site.unit.name} ${site.unit.year} (${site.unit.variant}). Mohon info ketersediaannya.`;
+const waHref = `https://wa.me/${site.waNumber}?text=${encodeURIComponent(message)}`;
+---
+
+<section class="hero" aria-labelledby="hero-title"
+  style={`--hero-object-position: ${heroImage.objectPosition}; --hero-tablet-position: ${heroImage.tabletObjectPosition}`}>
+  <picture class="hero__background">
+    {heroImage.mobileAvif && <source media="(max-width: 900px)" srcset={heroImage.mobileAvif} sizes="100vw" type="image/avif" />}
+    {heroImage.mobileWebp && <source media="(max-width: 900px)" srcset={heroImage.mobileWebp} sizes="100vw" type="image/webp" />}
+    {heroImage.desktopAvif && <source srcset={heroImage.desktopAvif} sizes="100vw" type="image/avif" />}
+    {heroImage.desktopWebp && <source srcset={heroImage.desktopWebp} sizes="100vw" type="image/webp" />}
+    <img src={heroImage.src} alt={heroImage.alt} width="960" height="1280" loading="eager" decoding="async" fetchpriority="high" />
+  </picture>
+  <div class="hero__shade" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <div class="hero__copy">
+      <h1 id="hero-title"><span>{site.heroTitle}</span><span>{site.areaServed.join(" - ")}</span></h1>
+      <p class="hero__price">Mulai <span>{money(startingPrice.price)}</span><small>/ {startingPrice.hours} jam</small></p>
+      <a class="hero__cta" href={site.available ? "#order" : waHref}
+        target={site.available ? undefined : "_blank"} rel={site.available ? undefined : "noopener noreferrer"}>
+        {site.available ? "Sewa via WhatsApp" : "Tanya jadwal kosong"}
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; min-height: 620px; height: calc(100svh - 76px); overflow: hidden; isolation: isolate; color: #fff; background: #111; }
+  .hero__background { position: absolute; inset: 0; z-index: -3; display: block; }
+  .hero__background img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: var(--hero-object-position); }
+  .hero__shade { position: absolute; inset: 0 auto 0 0; z-index: -1; width: 58%; background: linear-gradient(90deg, rgb(0 0 0 / 91%), rgb(0 0 0 / 78%) 65%, rgb(0 0 0 / 45%)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); mask-image: linear-gradient(90deg, #000 75%, transparent); }
+  .hero__inner { min-height: inherit; height: 100%; display: flex; align-items: center; padding: 3rem clamp(1.5rem, 5vw, 5rem); }
+  .hero__copy { max-width: 50%; position: relative; animation: hero-settle 650ms var(--ease-out); }
+  h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2.35rem, 3.35vw, 3.8rem); font-weight: 300; line-height: 1.08; letter-spacing: -.04em; }
+  h1 span { display: block; }
+  .hero__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem; margin: 2rem 0 1.25rem; font-size: 1rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .hero__price span { font-size: 1.5rem; font-weight: 400; }
+  .hero__price small { font-size: .9rem; }
+  .hero__cta { min-height: 48px; display: inline-flex; justify-content: center; align-items: center; gap: 1.5rem; padding: .8rem 1.3rem; color: #fff; background: var(--accent); border-radius: 999px; font-size: .9rem; font-weight: 400; text-decoration: none; }
+  .hero__cta:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .hero__cta svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .hero__cta:focus-visible { outline-color: #fff; }
+  @keyframes hero-settle { from { opacity: .7; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 900px) {
+    .hero { min-height: 700px; }
+    .hero__background img { object-position: var(--hero-tablet-position); }
+    .hero__inner { align-items: flex-start; padding-top: 3rem; }
+    .hero__copy { max-width: 100%; }
+    .hero__shade { inset: 0 0 auto; width: 100%; height: 47%; min-height: 340px; background: linear-gradient(180deg, rgb(0 0 0 / 92%), rgb(0 0 0 / 78%) 65%, rgb(0 0 0 / 42%)); mask-image: linear-gradient(#000 70%, transparent); }
+    h1 { font-size: clamp(1.75rem, 5.1vw, 3rem); }
+  }
+  @media (max-width: 600px) {
+    .hero { min-height: 640px; height: calc(100svh - 64px); }
+    .hero__inner { padding: 2.25rem 1rem; }
+    h1 { font-size: clamp(1.75rem, 7.8vw, 2.4rem); }
+    .hero__price { margin-top: 1.5rem; }
+    .hero__shade { min-height: 310px; height: 43%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero__copy { animation: none; } }
+</style>

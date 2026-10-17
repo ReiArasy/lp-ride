@@ -1,0 +1,59 @@
+---
+import { site } from "../data/site";
+
+const money = (value: number) =>
+  `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+---
+
+<section class="section pricing" id="harga" aria-labelledby="pricing-title">
+  <div class="section__inner">
+    <header class="section-heading">
+      <h2 id="pricing-title">Pilih durasi.</h2>
+      <p>Klik durasi untuk langsung mengisinya di form order.</p>
+    </header>
+
+    <div class="price-grid">
+      {site.prices.map((item) => (
+        <button
+          class:list={["price-card", { "price-card--featured": item.featured }]}
+          type="button"
+          data-price-card
+          data-duration={item.hours}
+          aria-pressed="false"
+        >
+          <span class="price-card__top">
+            <span>{String(item.hours).padStart(2, "0")} JAM</span>
+            {item.featured && <span class="price-card__stamp">Paling hemat</span>}
+          </span>
+          <strong>{money(item.price)}</strong>
+          <span class="price-card__per">{money(item.perHour)} / jam</span>
+          <span class="price-card__action">Pilih durasi
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+          </span>
+        </button>
+      ))}
+    </div>
+
+    <p class="pricing-note">{site.pricingNote}</p>
+  </div>
+</section>
+
+<style>
+  .pricing { background: var(--paper-2); }
+  .price-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: clamp(2rem, 5vw, 3.5rem); background: var(--line-strong); border: 1px solid var(--line-strong); }
+  .price-card { position: relative; min-height: 19rem; display: flex; flex-direction: column; align-items: flex-start; padding: clamp(1.25rem, 3vw, 2rem); color: var(--ink); background: var(--paper); border: 0; border-radius: 0; font: inherit; text-align: left; cursor: pointer; }
+  .price-card::after { content: ""; position: absolute; inset: auto 0 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 240ms var(--ease-out); }
+  .price-card:hover, .price-card[aria-pressed="true"] { background: #f9fcfd; }
+  .price-card:hover::after, .price-card[aria-pressed="true"]::after { transform: scaleX(1); }
+  .price-card__top { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; color: var(--muted-dark); font-size: .72rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+  .price-card__stamp { padding: .32rem .5rem; color: var(--signal-dark); border: 1px solid var(--signal); letter-spacing: .06em; }
+  .price-card strong { margin-top: auto; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.15rem); font-weight: 600; letter-spacing: -.04em; }
+  .price-card__per { margin-top: .25rem; color: var(--muted-dark); font-size: .88rem; font-weight: 400; }
+  .price-card__action { width: 100%; display: flex; justify-content: space-between; margin-top: 1.5rem; padding-top: 1rem; color: var(--accent); border-top: 1px solid var(--line); font-size: .88rem; font-weight: 500; }
+  .price-card__action svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .pricing-note { margin: 1rem 0 0; color: var(--muted-dark); font-size: .9rem; }
+  @media (max-width: 760px) {
+    .price-grid { grid-template-columns: 1fr; }
+    .price-card { min-height: 13.5rem; }
+  }
+</style>

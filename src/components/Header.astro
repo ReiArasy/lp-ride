@@ -1,0 +1,33 @@
+---
+import { site } from "../data/site";
+---
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="#main-content" aria-label={`${site.name}, halaman utama`}>
+      <img src="/images/logo-lifabs-rent-header.jpg" width="300" height="96" alt={site.name} />
+    </a>
+    <nav aria-label="Navigasi utama">
+      <a class="nav-link" href="#harga">Harga</a>
+      <a class="nav-link" href="#order">Pesan</a>
+      <a class="nav-link" href="#syarat">Syarat</a>
+      <a class="nav-link" href="#faq">FAQ</a>
+      <a class="header-cta" href="#order">Sewa via WA</a>
+    </nav>
+  </div>
+</header>
+<style>
+  .site-header { background: #fff; color: var(--ink); }
+  .site-header__inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-inline: clamp(1rem, 3vw, 3rem); }
+  .brand { min-height: 44px; display: flex; align-items: center; }
+  .brand img { width: 142px; height: auto; }
+  nav { display: flex; align-items: center; gap: clamp(.75rem, 2vw, 2rem); }
+  nav a { min-height: 44px; display: inline-flex; align-items: center; color: var(--ink); font-size: .78rem; font-weight: 400; text-decoration: none; }
+  .nav-link:hover { text-decoration: underline; text-underline-offset: .3em; }
+  nav .header-cta { padding: .65rem 1.1rem; border-radius: 999px; color: #fff; background: var(--ink); font-weight: 500; }
+  nav .header-cta:hover { background: #303840; }
+  @media (max-width: 600px) {
+    .site-header__inner { min-height: 64px; }
+    .brand img { width: 116px; }
+    nav .nav-link { display: none; }
+  }
+</style>

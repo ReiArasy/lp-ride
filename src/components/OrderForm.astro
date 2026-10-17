@@ -1,0 +1,255 @@
+---
+import { site } from "../data/site";
+
+const orderData = {
+  name: site.name,
+  waNumber: site.waNumber,
+  unit: site.unit,
+  prices: site.prices.map(({ hours, price }) => ({ hours, price })),
+};
+---
+
+<section class="section order-section" id="order" aria-labelledby="order-title">
+  <div class="section__inner order-layout">
+    <header class="section-heading order-intro">
+      <h2 id="order-title">Order via WhatsApp.</h2>
+      <p>Isi detail sewa untuk meminta konfirmasi owner.</p>
+      <div class="order-facts" aria-label="Informasi booking">
+        <span>{site.pickupNote}</span>
+      </div>
+    </header>
+
+    <form class="order-form" id="order-form">
+      <div class="field field--full">
+        <label for="duration">Durasi</label>
+        <select id="duration" name="duration" required>
+          <option value="">Pilih durasi</option>
+          {site.prices.map((item) => (
+            <option value={item.hours}>{item.hours} jam</option>
+          ))}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="pickup-date">Tanggal ambil</label>
+        <input id="pickup-date" name="pickupDate" type="date" required />
+      </div>
+      <div class="field">
+        <label for="pickup-time">Jam ambil</label>
+        <input id="pickup-time" name="pickupTime" type="time" required />
+      </div>
+
+      <div class="field field--full">
+        <label for="usage-area">Area pemakaian</label>
+        <select id="usage-area" name="usageArea" required>
+          <option value="">Pilih area pemakaian</option>
+          {site.usageAreas.map((area) => <option value={area}>{area}</option>)}
+        </select>
+      </div>
+
+      <div class="field field--full" id="destination-field" hidden>
+        <label for="destination">Tujuan luar kota</label>
+        <input id="destination" name="destination" type="text" autocomplete="address-level2" placeholder="Contoh: Malang" />
+      </div>
+
+      <div class="field field--full">
+        <label for="customer-name">Nama</label>
+        <input id="customer-name" name="customerName" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="order-summary" aria-live="polite">
+        <div>
+          <span>Estimasi kembali</span>
+          <strong id="return-estimate">Lengkapi durasi, tanggal, dan jam.</strong>
+        </div>
+        <div>
+          <span>Harga</span>
+          <strong id="order-price">—</strong>
+        </div>
+        <p id="out-of-town-note" hidden>Harga akan dikonfirmasi owner sesuai tujuan.</p>
+      </div>
+
+      <label class="check-row">
+        <input id="terms-agreement" name="termsAgreement" type="checkbox" required />
+        <span>Saya sudah membaca S&K dan akan membawa helm sendiri.</span>
+      </label>
+
+      <button class="submit-button" type="submit" disabled>
+        Kirim ringkasan ke WhatsApp
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+      </button>
+      <p class="form-hint" id="form-hint">Lengkapi semua field wajib untuk melanjutkan.</p>
+    </form>
+  </div>
+</section>
+
+<script type="application/json" id="order-data" set:html={JSON.stringify(orderData)}></script>
+<script>
+  const form = document.querySelector<HTMLFormElement>("#order-form");
+  const dataNode = document.querySelector<HTMLScriptElement>("#order-data");
+
+  if (form && dataNode) {
+    const data = JSON.parse(dataNode.textContent || "{}") as {
+      name: string;
+      waNumber: string;
+      unit: { name: string; year: number; variant: string };
+      prices: Array<{ hours: number; price: number }>;
+    };
+    const duration = form.querySelector<HTMLSelectElement>("#duration")!;
+    const pickupDate = form.querySelector<HTMLInputElement>("#pickup-date")!;
+    const pickupTime = form.querySelector<HTMLInputElement>("#pickup-time")!;
+    const usageArea = form.querySelector<HTMLSelectElement>("#usage-area")!;
+    const destinationField = form.querySelector<HTMLElement>("#destination-field")!;
+    const destination = form.querySelector<HTMLInputElement>("#destination")!;
+    const customerName = form.querySelector<HTMLInputElement>("#customer-name")!;
+    const returnEstimate = form.querySelector<HTMLElement>("#return-estimate")!;
+    const orderPrice = form.querySelector<HTMLElement>("#order-price")!;
+    const outOfTownNote = form.querySelector<HTMLElement>("#out-of-town-note")!;
+    const submitButton = form.querySelector<HTMLButtonElement>(".submit-button")!;
+    const formHint = form.querySelector<HTMLElement>("#form-hint")!;
+    const priceCards = [...document.querySelectorAll<HTMLButtonElement>("[data-price-card]")];
+
+    const pad = (value: number) => String(value).padStart(2, "0");
+    const today = new Date();
+    pickupDate.min = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
+    const formatMoney = (value: number) =>
+      `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+
+    const formatDate = (value: Date) =>
+      new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(value);
+
+    const selectedPrice = () =>
+      data.prices.find((item) => item.hours === Number(duration.value));
+
+    const calculateReturn = () => {
+      const price = selectedPrice();
+      if (!price || !pickupDate.value || !pickupTime.value) return null;
+      const start = new Date(`${pickupDate.value}T${pickupTime.value}:00`);
+      if (Number.isNaN(start.getTime())) return null;
+      return new Date(start.getTime() + price.hours * 60 * 60 * 1000);
+    };
+
+    const update = () => {
+      const price = selectedPrice();
+      const returnedAt = calculateReturn();
+      const isOutOfTown = usageArea.value === "Luar kota";
+
+      destinationField.hidden = !isOutOfTown;
+      destination.required = isOutOfTown;
+      if (!isOutOfTown) destination.value = "";
+
+      orderPrice.textContent = price ? formatMoney(price.price) : "—";
+      returnEstimate.textContent = returnedAt
+        ? `${formatDate(returnedAt)} pukul ${pad(returnedAt.getHours())}.${pad(returnedAt.getMinutes())}`
+        : "Lengkapi durasi, tanggal, dan jam.";
+      outOfTownNote.hidden = !isOutOfTown;
+
+      priceCards.forEach((card) => {
+        card.setAttribute("aria-pressed", String(card.dataset.duration === duration.value));
+      });
+
+      const valid = form.checkValidity();
+      submitButton.disabled = !valid;
+      formHint.textContent = valid
+        ? "Ringkasan siap dikirim ke WhatsApp."
+        : "Lengkapi semua field wajib untuk melanjutkan.";
+    };
+
+    priceCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        duration.value = card.dataset.duration || "";
+        update();
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+        duration.focus({ preventScroll: true });
+      });
+    });
+
+    form.addEventListener("input", update);
+    form.addEventListener("change", update);
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const price = selectedPrice()!;
+      const start = new Date(`${pickupDate.value}T${pickupTime.value}:00`);
+      const returnedAt = calculateReturn()!;
+      const isOutOfTown = usageArea.value === "Luar kota";
+      const priceText = isOutOfTown
+        ? `${formatMoney(price.price)} (area Sidoarjo, mohon info biaya luar kota)`
+        : formatMoney(price.price);
+      const areaText = isOutOfTown
+        ? `Luar kota (tujuan: ${destination.value.trim()})`
+        : usageArea.value;
+      const message = [
+        `Halo ${data.name}, saya mau sewa motor:`,
+        "",
+        `Unit          : ${data.unit.name} ${data.unit.year} (${data.unit.variant})`,
+        `Durasi        : ${price.hours} jam`,
+        `Harga         : ${priceText}`,
+        `Tanggal ambil : ${formatDate(start)}`,
+        `Jam ambil     : ${pickupTime.value.replace(":", ".")}`,
+        `Estimasi kembali: ${formatDate(returnedAt)} pukul ${pad(returnedAt.getHours())}.${pad(returnedAt.getMinutes())}`,
+        `Area pemakaian: ${areaText}`,
+        `Nama          : ${customerName.value.trim()}`,
+        "",
+        "Saya sudah membaca syarat & ketentuan dan akan membawa helm sendiri.",
+        "Mohon konfirmasi ketersediaan unit. Terima kasih!",
+      ].join("\n");
+
+      window.open(
+        `https://wa.me/${data.waNumber}?text=${encodeURIComponent(message)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    });
+
+    update();
+  }
+</script>
+
+<style>
+  .order-section { background: var(--paper); }
+  .order-layout { max-width: 46rem; display: grid; grid-template-columns: 1fr; gap: 2rem; }
+  .order-intro { position: static; }
+  .order-facts { display: grid; margin-top: .75rem; color: var(--muted-dark); font-size: .8rem; line-height: 1.5; }
+  .order-facts span { display: flex; align-items: flex-start; gap: .65rem; }
+  .order-facts span::before { content: ""; width: .7rem; height: 2px; flex: 0 0 auto; margin-top: .65em; background: var(--accent); }
+  .order-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.15rem; padding: clamp(1.25rem, 4vw, 2.5rem); background: var(--paper-2); border: 1px solid var(--line); }
+  .field { display: grid; gap: .45rem; }
+  .field--full { grid-column: 1 / -1; }
+  .field label { color: var(--muted-dark); font-size: .76rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; }
+  input, select { width: 100%; min-height: 50px; padding: .78rem .85rem; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; font-weight: 400; }
+  input:hover, select:hover { border-color: #8d969d; }
+  .order-summary { grid-column: 1 / -1; display: grid; grid-template-columns: 1.35fr .65fr; gap: 1rem; padding: 1.25rem 0; border-block: 1px solid var(--line-strong); }
+  .order-summary div { display: grid; gap: .3rem; }
+  .order-summary span { color: var(--muted-dark); font-size: .72rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+  .order-summary strong { font-size: 1rem; font-weight: 500; line-height: 1.5; }
+  .order-summary p { grid-column: 1 / -1; margin: 0; color: var(--signal-dark); font-size: .88rem; }
+  .check-row { grid-column: 1 / -1; min-height: 44px; display: grid; grid-template-columns: 1.25rem 1fr; gap: .75rem; align-items: start; color: var(--ink); font-size: .92rem; line-height: 1.5; cursor: pointer; }
+  .check-row input { width: 1.15rem; min-height: 1.15rem; height: 1.15rem; margin-top: .15rem; accent-color: var(--accent); }
+  .submit-button { grid-column: 1 / -1; min-height: 54px; display: flex; align-items: center; justify-content: space-between; padding: .95rem 1.15rem; color: #fff; background: var(--accent); border: 0; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; }
+  .submit-button:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-2px); }
+  .submit-button svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .submit-button:disabled { color: #73808a; background: #dce1e4; cursor: not-allowed; }
+  .form-hint { grid-column: 1 / -1; margin: -.35rem 0 0; color: var(--muted-dark); font-size: .78rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 820px) {
+    .order-layout { grid-template-columns: 1fr; gap: 2rem; }
+    .order-intro { position: static; }
+  }
+  @media (max-width: 560px) {
+    .order-form { grid-template-columns: 1fr; }
+    .field, .field--full { grid-column: 1; }
+    .order-summary { grid-template-columns: 1fr; }
+    .order-summary p { grid-column: 1; }
+  }
+</style>
