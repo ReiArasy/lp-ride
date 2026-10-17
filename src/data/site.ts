@@ -40,6 +40,8 @@ const siteContent = {
     "Harga untuk area Sidoarjo. Luar kota infokan tujuan dulu.",
   usageAreas: ["Dalam Sidoarjo", "Luar kota"],
   terms: {
+    fuelChargePerBar: 100000,
+    penaltyAmount: 5000000,
     requirements: [
       "SIM C (aktif)",
       "KTP",

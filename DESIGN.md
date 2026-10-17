@@ -214,7 +214,7 @@ Edit site.heroImage src, alt, objectPosition and tabletObjectPosition. Both posi
 
 ### Quiet Reading Components
 
-Order form uses calm labels and explicit required states. Exact terms stay visible with helmet and penalty highlights. FAQ uses native details. Mobile sticky WhatsApp hides when the form is visible. All business truth remains in site.ts.
+Order form uses calm labels and explicit required states. The terms section uses a 360px desktop introduction rail with an 80px gap to two sharp record cards: a cyan-tinted checked requirements list and numbered conditions, with the verified penalty row in a restrained red tint. Both highlights retain 44px icon cells; the full-width closing strip returns to #order. On narrow viewports this becomes one vertical reading flow with 20px gutters and a 52px full-width action. FAQ uses native details. Mobile sticky WhatsApp hides when the form is visible. All business truth remains in site.ts.
 
 ### Publication Guard
 
