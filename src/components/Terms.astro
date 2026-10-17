@@ -1,56 +1,137 @@
 ---
 import { site } from "../data/site";
+
+const currency = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+const penaltyAmount = currency(site.terms.penaltyAmount);
+const penaltyIndex = site.terms.conditions.findIndex((item) => item.includes(penaltyAmount));
 ---
 
 <section class="section terms" id="syarat" aria-labelledby="terms-title">
-  <div class="section__inner">
-    <header class="section-heading section-heading--wide">
-      <h2 id="terms-title">Syarat & ketentuan.</h2>
-      <p>Dokumen dikirim melalui WhatsApp setelah owner mengonfirmasi booking.</p>
-    </header>
+  <div class="section__inner terms__inner">
+    <div class="terms__layout">
+      <aside class="terms__intro" aria-label="Ringkasan syarat dan ketentuan">
+        <header>
+          <p class="terms__eyebrow">Sebelum memesan</p>
+          <h2 id="terms-title">Syarat & ketentuan.</h2>
+          <p class="terms__summary">Dokumen dikirim melalui WhatsApp setelah owner mengonfirmasi booking.</p>
+        </header>
 
-    <div class="term-highlights" aria-label="Ketentuan penting">
-      <div>
-        <strong>{site.terms.helmetHighlight}</strong>
-        <small>Bawa helm sendiri.</small>
-      </div>
-      <div class="term-highlight--danger">
-        <strong>{site.terms.penaltyHighlight}</strong>
-        <small>Untuk pelanggaran ketentuan.</small>
+        <div class="terms__alerts" aria-label="Ketentuan penting">
+          <div class="terms-alert terms-alert--info">
+            <span class="terms-alert__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 13.5V9.8c0-.9.5-1.7 1.3-2.1l1.9-.9.9-2.1h6l.9 2.1 1.9.9c.8.4 1.3 1.2 1.3 2.1v3.7M5 13.5h14M6.5 13.5v2.2c0 .7.6 1.3 1.3 1.3h8.4c.7 0 1.3-.6 1.3-1.3v-2.2M9 10.5h.01M15 10.5h.01" /></svg>
+            </span>
+            <span><strong>{site.terms.helmetHighlight}</strong><small>Bawa helm sendiri.</small></span>
+          </div>
+          <div class="terms-alert terms-alert--danger">
+            <span class="terms-alert__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5 20 19H4L12 4.5ZM12 9v4.3M12 16.3h.01" /></svg>
+            </span>
+            <span><strong>{site.terms.penaltyHighlight}</strong><small>Untuk pelanggaran ketentuan.</small></span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="terms__records">
+        <section class="terms-card" aria-labelledby="requirements-title">
+          <header class="terms-card__header">
+            <h3 id="requirements-title">Syarat</h3>
+            <span>{site.terms.requirements.length} kelengkapan</span>
+          </header>
+          <ul class="terms-list terms-list--requirements">
+            {site.terms.requirements.map((item) => (
+              <li>
+                <span class="terms-check" aria-hidden="true">
+                  <svg viewBox="0 0 16 16"><path d="m3.2 8.2 2.8 2.7 6.8-6.2" /></svg>
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="terms-card" aria-labelledby="conditions-title">
+          <header class="terms-card__header">
+            <h3 id="conditions-title">Ketentuan</h3>
+            <span>{site.terms.conditions.length} aturan</span>
+          </header>
+          <ol class="terms-list terms-list--conditions">
+            {site.terms.conditions.map((item, index) => {
+              const isPenalty = index === penaltyIndex;
+              const [beforePenalty, afterPenalty] = isPenalty ? item.split(penaltyAmount) : [item, ""];
+
+              return (
+                <li class:list={{ "terms-condition--danger": isPenalty }}>
+                  <span class="terms-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                  <span>
+                    {isPenalty ? <>{beforePenalty}<span class="terms-penalty">{penaltyAmount}</span>{afterPenalty}</> : item}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
       </div>
     </div>
 
-    <div class="terms-grid">
-      <section aria-labelledby="requirements-title">
-        <h3 id="requirements-title">Syarat</h3>
-        <ul>
-          {site.terms.requirements.map((item) => <li>{item}</li>)}
-        </ul>
-      </section>
-      <section aria-labelledby="conditions-title">
-        <h3 id="conditions-title">Ketentuan</h3>
-        <ul>
-          {site.terms.conditions.map((item) => <li>{item}</li>)}
-        </ul>
-      </section>
+    <div class="terms-cta">
+      <div>
+        <h3>Sudah paham aturannya?</h3>
+        <p>Lengkapi detail sewa, lalu kirim ringkasan lewat WhatsApp.</p>
+      </div>
+      <a href="#order">Sewa via WhatsApp <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a>
     </div>
   </div>
 </section>
 
 <style>
   .terms { background: var(--paper); }
-  .term-highlights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
-  .term-highlights > div { min-height: 8rem; display: grid; align-content: center; gap: .15rem; padding: 1.25rem; color: var(--accent); background: #f3fafc; border: 1px solid #abd4e2; }
-  .term-highlights strong { font-family: var(--font-display); font-size: clamp(1.2rem, 3vw, 1.7rem); font-weight: 600; }
-  .term-highlights small { color: var(--muted-dark); font-size: .84rem; }
-  .term-highlights .term-highlight--danger { color: var(--signal-dark); background: #fff7f7; border-color: #e7b5b8; }
-  .terms-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1px; margin-top: 1px; background: var(--line-strong); border: 1px solid var(--line-strong); }
-  .terms-grid section { padding: clamp(1.5rem, 4vw, 2.5rem); background: var(--paper); }
-  .terms-grid h3 { margin: 0; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; }
-  .terms-grid ul { display: grid; gap: .9rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
-  .terms-grid li { position: relative; padding-left: 1.25rem; color: #303840; font-weight: 400; line-height: 1.6; }
-  .terms-grid li::before { content: ""; position: absolute; top: .72em; left: 0; width: .38rem; height: .38rem; background: var(--accent); border-radius: 50%; }
+  .terms__layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); align-items: start; gap: 5rem; }
+  .terms__eyebrow { margin: 0 0 .8rem; color: var(--muted-dark); font-size: .72rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+  .terms h2 { font-size: clamp(2.2rem, 4.2vw, 3.8rem); font-weight: 600; }
+  .terms__summary { max-width: 31ch; margin: 1rem 0 0; color: var(--muted-dark); font-size: .95rem; line-height: 1.7; }
+  .terms__alerts { display: grid; gap: .75rem; margin-top: 2rem; }
+  .terms-alert { min-height: 76px; display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: .85rem; padding: .85rem; border: 1px solid; }
+  .terms-alert__icon { width: 44px; height: 44px; display: grid; place-items: center; color: var(--accent); background: rgb(0 111 152 / 9%); }
+  .terms-alert__icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .terms-alert strong, .terms-alert small { display: block; }
+  .terms-alert strong { color: var(--ink); font-family: var(--font-display); font-size: .94rem; font-weight: 500; line-height: 1.35; }
+  .terms-alert small { margin-top: .15rem; color: var(--muted-dark); font-size: .8rem; font-weight: 400; line-height: 1.45; }
+  .terms-alert--info { border-color: #abd4e2; background: #f3fafc; }
+  .terms-alert--danger { border-color: #e7b5b8; background: #fff7f7; }
+  .terms-alert--danger .terms-alert__icon { color: var(--signal-dark); background: rgb(227 38 46 / 8%); }
+  .terms-alert--danger strong { color: var(--signal-dark); }
+  .terms__records { display: grid; gap: 1rem; }
+  .terms-card { overflow: hidden; border: 1px solid var(--line-strong); }
+  .terms-card__header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; background: var(--paper-2); border-bottom: 1px solid var(--line); }
+  .terms-card h3, .terms-cta h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1rem; font-weight: 500; line-height: 1.35; }
+  .terms-card__header span { color: var(--muted-dark); font-size: .72rem; font-weight: 500; letter-spacing: .04em; }
+  .terms-list { margin: 0; padding: 0; list-style: none; }
+  .terms-list li { min-height: 44px; display: grid; align-items: center; padding: .7rem 1rem; color: #303840; font-size: .92rem; font-weight: 400; line-height: 1.5; }
+  .terms-list li + li { border-top: 1px solid var(--line); }
+  .terms-list--requirements li { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .65rem; }
+  .terms-check { width: 1.25rem; height: 1.25rem; display: grid; place-items: center; color: var(--accent); background: rgb(0 111 152 / 9%); border-radius: 50%; }
+  .terms-check svg { width: .8rem; height: .8rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .terms-list--conditions li { grid-template-columns: 2.3rem minmax(0, 1fr); gap: .5rem; }
+  .terms-number { color: #87919a; font-size: .75rem; font-variant-numeric: tabular-nums; font-weight: 500; letter-spacing: .04em; }
+  .terms-condition--danger { background: #fff7f7; }
+  .terms-condition--danger .terms-number, .terms-penalty { color: var(--signal-dark); }
+  .terms-penalty { font-weight: 500; }
+  .terms-cta { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2rem; margin-top: 3rem; padding: 1.25rem 1.5rem; background: var(--paper-2); }
+  .terms-cta p { margin: .25rem 0 0; color: var(--muted-dark); font-size: .9rem; line-height: 1.55; }
+  .terms-cta a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .75rem; padding: .7rem 1rem; color: #fff; background: var(--accent); border-radius: 999px; font-size: .88rem; font-weight: 500; text-decoration: none; white-space: nowrap; }
+  .terms-cta a svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .terms-cta a:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  @media (max-width: 1023px) {
+    .terms__layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .terms__summary { max-width: 46ch; }
+    .terms__alerts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
   @media (max-width: 700px) {
-    .term-highlights, .terms-grid { grid-template-columns: 1fr; }
+    .terms__inner { width: min(100% - 2.5rem, var(--container)); }
+    .terms__alerts { grid-template-columns: 1fr; }
+    .terms-list li { padding-inline: .9rem; font-size: .9rem; }
+    .terms-cta { grid-template-columns: 1fr; gap: 1rem; padding: 1.25rem; }
+    .terms-cta a { min-height: 52px; width: 100%; }
   }
 </style>
